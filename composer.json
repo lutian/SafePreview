@@ -1,0 +1,22 @@
+{
+    "name": "lutian/safePreview",
+    "version": "0.1",
+    "type": "library",
+    "description": "Show blured image and alert message when picture is not safe",
+    "keywords": ["lutian", "safePreview", "graphics-tools"],
+    "homepage": "https://github.com/lutian/safePreview.git",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Luciano Salvino",
+            "email": "lsalvino@hotmail.com",
+            "homepage": "http://mueveloz.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-4": { "Lutian\\SafePreview\\": "src/" }
+    }
+}
