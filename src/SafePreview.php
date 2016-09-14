@@ -381,33 +381,19 @@ class SafePreview
 		return '<img src="'.$this->urlImage.'">';
 	}
 	
-	public function grabImage($url,$saveto){
-		$ch = curl_init ($url);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-		$raw=curl_exec($ch);
-		curl_close ($ch);
-		if(file_exists($saveto)){
-			unlink($saveto);
-		}
-		$fp = fopen($saveto,'x');
-		fwrite($fp, $raw);
-		fclose($fp);
-	}
-	
 	private function getSizeImage($image) {
-		$arr = ['w' => 0, 'h' => 0];
+		$arr = array('w' => 0, 'h' => 0);
 		if(is_file($image)) {
             $arrImage = @getimagesize($image);
-			$arr = ['w' => $arrImage[0], 'h' => $arrImage[1]];
+			$arr = array('w' => $arrImage[0], 'h' => $arrImage[1]);
 		}
 		return $arr;
 	}
 	
 	public function isImageSafe(){
-		$this->setIsSafe(FALSE);
-		return $this->getIsSafe();
+
+		//$this->setIsSafe(FALSE);
+		//return $this->getIsSafe();
 		
 		// You can try to use External provider like
 		// https://market.mashape.com/sphirelabs/advanced-porn-nudity-and-adult-content-detection#nudity-check
@@ -415,11 +401,13 @@ class SafePreview
 		$url = 'https://sphirelabs-advanced-porn-nudity-and-adult-content-detection.p.mashape.com/v1/get/index.php'.$queryString;
 		$apiKey = '{YOUR-API-KEY-HERE}'; 
 		$contentType = 'application/json';
-		$ch = curl_init ($url);
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_USERAGENT,'SafePreview 0.1');
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Accept: '.$contentType, 
             'X-Mashape-Key: '.$apiKey
         ));
+		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 120);
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
@@ -428,10 +416,9 @@ class SafePreview
 		$jsonResult = curl_exec($ch);
         $responseInfo = curl_getinfo($ch);
 		
-		echo $jsonResult;
-		
 		$arrResult = json_decode($jsonResult,true);
-		if(isset($arrResult['Is Porn']) && $arrResult['Is Porn'] == 'false') $this->setIsSafe(TRUE);
+
+		if(isset($arrResult['Is Porn']) && $arrResult['Is Porn'] != 'True') $this->setIsSafe(TRUE);
 		$this->setIsSafe(FALSE);
 		return $this->getIsSafe();
 		

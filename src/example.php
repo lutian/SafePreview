@@ -1,6 +1,6 @@
 <?php
 
-include('safePreview.php');
+include('SafePreview.php');
 
 $pathLogo = 'images/logo/logo.png';
 $pathImage = 'images/origin/image.jpg';
