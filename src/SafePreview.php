@@ -336,7 +336,13 @@ class SafePreview
 			imagecopyresampled($im, $imageOrig, 0, 0, 0, 0, $width, $height, $size[0], $size[1]); 
 			// crop the image to fit the area selected
 			$area = array('x'=>$areaX,'y'=>$areaY,'width'=>$areaW,'height'=>$areaH);
-			$im = imagecrop($im,$area);
+			
+			if (function_exists('imagecrop')) {
+				$im = imagecrop($im,$area);
+			} else {
+				$im = $this->imageCropV5($im,$area);
+			}
+			
 			$imgWidth = imagesx($im);
 			$imgHeight = imagesy($im);
 			for ($y=0; $y < $imgHeight; $y++)
@@ -388,6 +394,18 @@ class SafePreview
 			$arr = array('w' => $arrImage[0], 'h' => $arrImage[1]);
 		}
 		return $arr;
+	}
+	
+	private function imageCropV5($src, $area) {
+
+		$dst = imagecreatetruecolor($area['width'], $area['height']);
+
+		imagecopyresized($dst,$src,0,0,0,0,$area['width'], $area['height'],$area['width'], $area['height']);
+
+		imagejpeg($dst);
+		imagedestroy($src);
+
+		return $dst;
 	}
 	
 	public function isImageSafe(){
