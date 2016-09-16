@@ -76,9 +76,8 @@ class SafePreview
 	private $fontSize = 22;
 
     /**
-     * @param $file
-     * @param $message
-     * @return file blured image with message insert on it
+	 * Add Pixelate and gaussian blur to original image
+     * @return file blured image
      */
     private function blurImage()
     {
@@ -104,6 +103,7 @@ class SafePreview
             die;
         }
 
+		// apply filters
 		imagefilter($this->image, IMG_FILTER_PIXELATE, 20, true);
 		
 		imagefilter($this->image, IMG_FILTER_GAUSSIAN_BLUR);
@@ -111,6 +111,7 @@ class SafePreview
     }
 
     /**
+	 * Alert message internationalization
      * @return string
      */
     private function messageToLang()
@@ -130,6 +131,10 @@ class SafePreview
 		$this->setMessage($message);
     }
 	
+	/**
+	 * Add logo to blured image
+     * @return file blured image with logo
+     */
 	private function addLogo() {
 		$this->arrLogoSize = $this->getSizeImage($this->logo);
 		
@@ -171,7 +176,10 @@ class SafePreview
 		imagealphablending($this->image,true);
 		imagedestroy($imageLogo);
 	}
-	
+	/**
+	 * Add alert message to blured image
+     * @return file blured image with logo and message
+     */
 	private function addMessage() {
 		$this->messageToLang();
 		$messageColor = imagecolorallocate($this->image, $this->txtColor['r'], $this->txtColor['g'], $this->txtColor['b']);
@@ -191,6 +199,10 @@ class SafePreview
         }
 	}
 	
+	/**
+	 * Create a blured image from original adding filters, logo and alert message
+     * @return file final blured image 
+     */
 	public function mergeImages() {
 		
 		// blur image
@@ -200,6 +212,7 @@ class SafePreview
 		// add message
 		$this->addMessage();
 		
+		// save blured image as file
 		imagejpeg($this->image, $this->pathBlured, 90);
 		imagedestroy($this->image);
 	}
@@ -209,7 +222,6 @@ class SafePreview
 	* @param: string $hex color code
 	* @return: array $rgb colors 
 	*/
-	
 	private function hex2rgb($hex) {
       $color = str_replace('#','',$hex);
       $RGBColors = array('r' => hexdec(substr($color,0,2)),
@@ -223,7 +235,6 @@ class SafePreview
 	* @param: string $hex html code (ex: #dd2200)
 	* @return: string $brightness in html code 
 	*/
-	
 	private function getBrightness($hex) {
 		// returns brightness value from 0 to 255
 
@@ -242,6 +253,13 @@ class SafePreview
 	
 	}
 	
+	/**
+	 * Fit text inside the image
+     * @param $string
+	 * @param $width
+	 * @param $height
+     * @return array message splitted in rows
+     */
 	private function fitTextOnBox($string,$width,$height) {
 		// detect the w & h of string
 		$bbox2 = imagettfbbox ( $this->fontSize, 0, $this->fontFile, $string );
@@ -278,7 +296,6 @@ class SafePreview
 	* @param: integer $len length of paragraph
 	* @return: array $outstring 
 	*/
-	
 	private function longWordWrap($string,$len) {
        $string = wordwrap($string,$len,"\n",1);
        $lines = explode("\n", $string); 
@@ -286,15 +303,9 @@ class SafePreview
     }
 	
 	/*
-	* Get most significant color from image
-	* @param: string $image image path
-	* @param: int $x X position of box area
-	* @param: int $y Y position of box area 
-	* @param: int $w width of box area
-	* @param: int $h height of box area
+	* Get most significant color from original image
 	* @return: array of significant colors
 	*/
-	
 	private function getColor()
 	{
 		if (is_file($this->pathImage))
@@ -337,6 +348,7 @@ class SafePreview
 			// crop the image to fit the area selected
 			$area = array('x'=>$areaX,'y'=>$areaY,'width'=>$areaW,'height'=>$areaH);
 			
+			// PHP Version >= 5.5
 			if (function_exists('imagecrop')) {
 				$im = imagecrop($im,$area);
 			} else {
@@ -372,6 +384,10 @@ class SafePreview
 		else die();
 	}
 	
+	/*
+	* Show blured image in html format
+	* @return: html
+	*/
 	public function showPreview() {
 		// show html button to accept view original image
 		$htmlImage = '<img id="imgBlured" src="' . $this->urlBlured . '" alt="' . $this->message . '">';
@@ -383,10 +399,18 @@ class SafePreview
 		return $htmlImage;
 	}
 	
+	/*
+	* Show original image in html format
+	* @return: html
+	*/
 	public function showOriginal() {
 		return '<img src="'.$this->urlImage.'">';
 	}
 	
+	/*
+	* Get image size
+	* @return: array
+	*/
 	private function getSizeImage($image) {
 		$arr = array('w' => 0, 'h' => 0);
 		if(is_file($image)) {
@@ -396,6 +420,10 @@ class SafePreview
 		return $arr;
 	}
 	
+	/*
+	* Crop image in PHP < 5.5
+	* @return: image cropped
+	*/
 	private function imageCropV5($src, $area) {
 
 		$dst = imagecreatetruecolor($area['width'], $area['height']);
@@ -408,12 +436,12 @@ class SafePreview
 		return $dst;
 	}
 	
+	/*
+	* Verify if picture is safe (You can use your own integration. I choose this one)
+	* @return: array of significant colors
+	*/
 	public function isImageSafe(){
-
-		//$this->setIsSafe(FALSE);
-		//return $this->getIsSafe();
-		
-		// You can try to use External provider like
+		// You have to get the api key and documentation from:
 		// https://market.mashape.com/sphirelabs/advanced-porn-nudity-and-adult-content-detection#nudity-check
 		$queryString = '?url='.urlencode($this->urlImage);
 		$url = 'https://sphirelabs-advanced-porn-nudity-and-adult-content-detection.p.mashape.com/v1/get/index.php'.$queryString;
