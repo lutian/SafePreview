@@ -4,7 +4,12 @@
 > graphics-tools
 
 
-Show blured image and alert message when picture is not safe
+Show blured image and alert message with your logo when picture is not safe
+
+	- Include integration with mashape.com to recognize if picture contain porn or adult content
+	- Add logo of your company inside the blured image
+	- Add alert message inside the blured image (optional, if condition is FALSE you can not view the original image)
+	- You can add diferents font files to change the font type of alert message (arial by default)
 
 
 ### Version
