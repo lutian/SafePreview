@@ -204,17 +204,19 @@ class SafePreview
      * @return file final blured image 
      */
 	public function mergeImages() {
+		// blured image already exist?
+		if(!is_file($this->pathBlured) && is_file($this->pathImage)) {
+			// blur image
+			$this->blurImage();
+			// add logo
+			$this->addLogo();
+			// add message
+			$this->addMessage();
 		
-		// blur image
-		$this->blurImage();
-		// add logo
-		$this->addLogo();
-		// add message
-		$this->addMessage();
-		
-		// save blured image as file
-		imagejpeg($this->image, $this->pathBlured, 90);
-		imagedestroy($this->image);
+			// save blured image as file
+			imagejpeg($this->image, $this->pathBlured, 90);
+			imagedestroy($this->image);
+		}
 	}
 	
 	/*
